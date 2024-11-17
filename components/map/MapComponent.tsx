@@ -4,8 +4,8 @@ import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { useState } from 'react'
 
-const MapComponent = () => {
-    const [coord, setCoord] = useState<[number, number]>([51.505, -0.09])
+export function MapComponent() {
+    const [coord] = useState<[number, number]>([51.505, -0.09]) 
 
     return (
         <div style={{ height: '100vh', width: '100vw' }}>
@@ -26,6 +26,3 @@ const MapComponent = () => {
         </div>
     )
 }
-
-export default MapComponent
-
