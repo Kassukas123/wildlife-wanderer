@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Login() {
   const { login } = useAuth();
@@ -11,7 +12,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    console.log("Sisselogimise nuppu vajutati");
     if (username.trim() === '' || password.trim() === '') {
       alert('Palun täida kõik väljad!');
       return;
@@ -19,10 +19,9 @@ export default function Login() {
 
     const success = login(username, password);
     if (success) {
-      console.log("Sisselogimine õnnestus");
       router.push('/account');
     } else {
-      console.log("Sisselogimine ebaõnnestus");
+      alert("Vale kasutajanimi või parool");
     }
   };
 
@@ -49,6 +48,13 @@ export default function Login() {
       >
         Logi sisse
       </button>
+
+      <p className='mt-4 text-sm'>
+        Pole veel kontot?{' '}
+        <Link href="/sign-up" className="text-blue-500 underline">
+          Registreeri
+        </Link>
+      </p>
     </div>
   );
 }

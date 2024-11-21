@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Register() {
   const { register } = useAuth();
@@ -15,9 +16,11 @@ export default function Register() {
       alert('Palun täida kõik väljad!');
       return;
     }
-
-    register(username, password); 
-    router.push('/sign-in');
+  
+    const success = register(username, password);
+    if (success) {
+      router.push('/sign-in');
+    }
   };
 
   return (
@@ -43,6 +46,13 @@ export default function Register() {
       >
         Registreeri
       </button>
+
+      <p className='mt-4 text-sm'>
+        Oled juba kasutaja?{' '}
+        <Link href="/sign-in" className="text-blue-500 underline">
+          Logi sisse
+        </Link>
+      </p>
     </div>
   );
 }
