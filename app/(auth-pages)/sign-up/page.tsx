@@ -1,51 +1,58 @@
-import { signUpAction } from "@/app/actions";
-import { FormMessage, Message } from "@/components/form-message";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { SmtpMessage } from "../smtp-message";
+'use client';
 
-export default async function Signup(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
-  if ("message" in searchParams) {
-    return (
-      <div className="w-full flex-1 flex items-center h-screen sm:max-w-md justify-center gap-2 p-4">
-        <FormMessage message={searchParams} />
-      </div>
-    );
-  }
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+export default function Register() {
+  const { register } = useAuth();
+  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleRegister = () => {
+    if (username.trim() === '' || password.trim() === '') {
+      alert('Palun täida kõik väljad!');
+      return;
+    }
+  
+    const success = register(username, password);
+    if (success) {
+      router.push('/sign-in');
+    }
+  };
 
   return (
-    <>
-      <form className="flex flex-col min-w-64 max-w-64 mx-auto">
-        <h1 className="text-2xl font-medium">Sign up</h1>
-        <p className="text-sm text text-foreground">
-          Already have an account?{" "}
-          <Link className="text-primary font-medium underline" href="/sign-in">
-            Sign in
-          </Link>
-        </p>
-        <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-          <Label htmlFor="email">Email</Label>
-          <Input name="email" placeholder="you@example.com" required />
-          <Label htmlFor="password">Password</Label>
-          <Input
-            type="password"
-            name="password"
-            placeholder="Your password"
-            minLength={6}
-            required
-          />
-          <SubmitButton formAction={signUpAction} pendingText="Signing up...">
-            Sign up
-          </SubmitButton>
-          <FormMessage message={searchParams} />
-        </div>
-      </form>
-      <SmtpMessage />
-    </>
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-semibold mb-4">Registreeri</h1>
+      <input
+        type="text"
+        placeholder="Kasutajanimi"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        className="border rounded p-2 mb-4"
+      />
+      <input
+        type="password"
+        placeholder="Parool"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="border rounded p-2 mb-4"
+      />
+      <button
+        onClick={handleRegister}
+        className="bg-green-500 text-white px-4 py-2 rounded"
+      >
+        Registreeri
+      </button>
+
+      <p className='mt-4 text-sm'>
+        Oled juba kasutaja?{' '}
+        <Link href="/sign-in" className="text-blue-500 underline">
+          Logi sisse
+        </Link>
+      </p>
+    </div>
   );
 }
