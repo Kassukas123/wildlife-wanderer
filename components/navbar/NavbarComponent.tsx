@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Navbar() {
   return (
-    <header className="w-full">
+    <header className="w-full fixed top-0 left-0 z-50">
       <div className="w-full bg-gray-200 py-3 flex justify-center">
         <h1 className="text-xl font-semibold tracking-wide">
           WILDLIFE WANDERER
