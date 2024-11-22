@@ -63,7 +63,16 @@
   * {
     @apply border-border;
   }
+  html, body, #__next {
+    @apply h-full w-full;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  main {
+    @apply flex flex-1 w-full h-full;
   }
 }

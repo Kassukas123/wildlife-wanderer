@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <Navbar />
-          <main className="min-h-screen w-full flex flex-col items-center">
+          <main className="min-h-screen w-full flex flex-col items-center h-full pt-13">
             {children}
           </main>
         </AuthProvider>
