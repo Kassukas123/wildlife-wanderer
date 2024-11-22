@@ -74,5 +74,6 @@
   }
   main {
     @apply flex flex-1 w-full h-full;
+    padding-top: 100px;
   }
 }
