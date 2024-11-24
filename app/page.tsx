@@ -1,4 +1,4 @@
-import MapComponent from "@/components/map/MapComponent";
+import { MapComponent } from "@/components/map/MapComponent";
 
 export default async function Index() {
   return (
