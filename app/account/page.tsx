@@ -2,15 +2,25 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Account() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [commentedTrails, setCommentedTrails] = useState<any[] | null>(null);
+  const [savedTrails, setSavedTrails] = useState<any[] | null>(null);
 
   if (!user) {
     router.push('/sign-in');
     return null;
   }
+
+  useEffect(() => {
+    setTimeout(() => {
+      setCommentedTrails([]);
+      setSavedTrails([]);
+    }, 1000);
+  }, []);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-10">
@@ -59,35 +69,45 @@ export default function Account() {
 
         <div className="col-span-12 md:col-span-8 space-y-6">
         {/*kommenteeritud rajad*/}
-          <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-lg font-medium mb-4">Minu kommenteeritud rajad</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="border rounded p-4 shadow-sm">
-                  <h3 className="font-medium mb-2">Raja nimi</h3>
-                  <p className="text-sm text-gray-600">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a odio mauris.
-                  </p>
-                </div>
-              ))}
-            </div>
+            {commentedTrails === null ? (
+              <p className="text-sm text-gray-500">Laadimine...</p>
+            ) : commentedTrails.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {commentedTrails.map((trail, i) => (
+                  <div key={i} className="border rounded p-4 shadow-sm">
+                    <h3 className="font-medium mb-2">{trail.name}</h3>
+                    <p className="text-sm text-gray-600">{trail.comment}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">Pole veel lisatud kommenteeritud radu.</p>
+            )}
           </div>
 
-          {/* Salvestatud rajad */}
+          {/*salvestatud rajad*/}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-lg font-medium mb-4">Salvestatud rajad</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="border rounded p-4 shadow-sm">
-                  <img
-                    src="https://cdn.pixabay.com/photo/2020/02/07/21/12/everest-4828404_1280.png"
-                    alt="Raja pilt"
-                    className="w-full h-32 object-cover rounded mb-2"
-                  />
-                  <h3 className="font-medium">Raja nimi</h3>
-                </div>
-              ))}
-            </div>
+            {savedTrails === null ? (
+              <p className="text-sm text-gray-500">Laadimine...</p>
+            ) : savedTrails.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {savedTrails.map((trail, i) => (
+                  <div key={i} className="border rounded p-4 shadow-sm">
+                    <img
+                      src={trail.image || '/path/to/default-image.jpg'}
+                      alt="Raja pilt"
+                      className="w-full h-32 object-cover rounded mb-2"
+                    />
+                    <h3 className="font-medium">{trail.name}</h3>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">Pole veel salvestatud radu.</p>
+            )}
           </div>
         </div>
       </div>
