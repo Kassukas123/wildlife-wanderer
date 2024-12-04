@@ -9,11 +9,18 @@ export default function Account() {
   const router = useRouter();
   const [commentedTrails, setCommentedTrails] = useState<any[] | null>(null);
   const [savedTrails, setSavedTrails] = useState<any[] | null>(null);
+  const [bio, setBio] = useState<string>('');
+  const [isEditingBio, setIsEditingBio] = useState(false);
 
   if (!user) {
     router.push('/sign-in');
     return null;
   }
+
+  const handleSaveBio = () => {
+    alert('Bio salvestatud');
+    setIsEditingBio(false);
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -48,20 +55,43 @@ export default function Account() {
             readOnly
             value={user}
           />
-          <label className="block mb-2 text-sm">E-mail:</label>
-          <input
-            type="text"
-            placeholder="E-mail"
-            className="w-full border rounded p-2 mb-4"
-            readOnly
-          />
           <label className="block mb-2 text-sm">Bio:</label>
-          <textarea
-            placeholder="Bio"
-            className="w-full border rounded p-2 mb-4"
-            rows={4}
-            readOnly
-          />
+          {isEditingBio ? (
+            <>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Sisesta bio"
+                className="w-full border rounded p-2 mb-4"
+                rows={4}
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveBio}
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Salvesta
+                </button>
+                <button
+                  onClick={() => setIsEditingBio(false)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Tühista
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-gray-700 mb-4">
+                {bio.trim() ? bio : 'Pole veel lisatud bio.'}
+              </p>              <button
+                onClick={() => setIsEditingBio(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Muuda bio
+              </button>
+            </>
+          )}
           <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Muuda parooli
           </button>
