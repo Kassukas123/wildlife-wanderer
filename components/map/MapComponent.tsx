@@ -2,26 +2,29 @@
 
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from "react-leaflet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FilterComponent } from "./FilterComponent";
 import MarkerComponent from "./MarkerComponent";
+import { Trail } from "@/types/trail"; 
 
 export function MapComponent() {
+  const [trails, setTrails] = useState<Trail[]>([]);
   const [coord] = useState<[number, number]>([58.5857, 25.5577]);
 
-  const markerData = [
-    {
-      position: [59.433585, 24.744026] as [number, number],
-      title: "Tallinna Kesklinn",
-      description: "Tallinna südames asuv oluline punkt.",
-    },
+  useEffect(() => {
+    async function fetchTrails() {
+      try {
+        const response = await fetch("/api/trails");
+        if (!response.ok) throw new Error("Failed to fetch trails");
+        const data: Trail[] = await response.json();
+        setTrails(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
-    {
-      position: [58.978917, 25.061693] as [number, number],
-      title: "Teine Punkt",
-      description: "Siin on veel üks huvitav koht.",
-    },
-  ];
+    fetchTrails();
+  }, []);
 
   return (
     <div className="flex h-full w-full">
@@ -42,12 +45,11 @@ export function MapComponent() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {markerData.map((data, index) => (
+          {trails.map((trail) => (
             <MarkerComponent
-              key={index}
-              position={data.position}
-              title={data.title}
-              description={data.description}
+              key={trail.id}
+              position={[trail.xCoordinate, trail.yCoordinate]}
+              {...trail}
             />
           ))}
         </MapContainer>

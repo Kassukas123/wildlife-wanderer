@@ -25,5 +25,5 @@ Paljud inimesed soovivad veeta rohkem aega looduses, kuid sageli puudub teadmine
 
 ## Meeskond
 
-- **Kevin-Kaspar Einsok**
-- **Evelin Otsa**,
+- **Kevin-Kaspar Einsok**,
+- **Evelin Otsa**
