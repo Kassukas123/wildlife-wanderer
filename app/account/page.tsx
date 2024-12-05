@@ -30,10 +30,11 @@ export default function Account() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100 py-10">
-      <div className="w-full max-w-6xl flex justify-between items-center mb-6">
-        <h2 className="text-lg text-gray-700">Tere, {user}!</h2>
-        <button
+    <div className="flex flex-col items-center bg-gray-100 min-h-screen py-10">
+      <div className="w-full max-w-7xl px-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg text-gray-700">Tere, {user}!</h2>
+          <button
           onClick={() => {
             logout();
             router.push('/');
@@ -41,11 +42,12 @@ export default function Account() {
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
         >
           Logi välja
-        </button>
+          </button>
+        </div>
       </div>
 
-      <div className="w-full max-w-6xl grid grid-cols-12 gap-6">
-        <div className="col-span-12 md:col-span-4 bg-white rounded-lg shadow-md p-6">
+      <div className="w-full max-w-4xl px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="col-span-1 bg-white rounded-lg shadow-md p-6">
           <h2 className="text-lg font-medium mb-4">Profiili info</h2>
           <label className="block mb-2 text-sm">Kasutajanimi:</label>
           <input
@@ -97,7 +99,7 @@ export default function Account() {
           </button>
         </div>
 
-        <div className="col-span-12 md:col-span-8 space-y-6">
+        <div className="col-span-2 space-y-6">
         {/*kommenteeritud rajad*/}
         <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-lg font-medium mb-4">Minu kommenteeritud rajad</h2>
