@@ -2,26 +2,53 @@
 
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from "react-leaflet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FilterComponent } from "./FilterComponent";
 import MarkerComponent from "./MarkerComponent";
+import { Trail } from "@/types/trail"; 
 
 export function MapComponent() {
   const [coord] = useState<[number, number]>([58.5857, 25.5577]);
+  const [markerData, setMarkerData] = useState<
+    { position: [number, number]; title: string; description: string }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const markerData = [
-    {
-      position: [59.433585, 24.744026] as [number, number],
-      title: "Tallinna Kesklinn",
-      description: "Tallinna südames asuv oluline punkt.",
-    },
+  useEffect(() => {
+    async function fetchTrails() {
+      try {
+        const response = await fetch("/api/trails");
+        if (!response.ok) {
+          throw new Error("Failed to fetch trail data");
+        }
 
-    {
-      position: [58.978917, 25.061693] as [number, number],
-      title: "Teine Punkt",
-      description: "Siin on veel üks huvitav koht.",
-    },
-  ];
+        const trails: Trail[] = await response.json();
+
+        const markers = trails.map((trail) => ({
+          position: [trail.xCoordinate, trail.yCoordinate] as [number, number],
+          title: trail.name,
+          description: trail.location, 
+        }));
+
+        setMarkerData(markers);
+      } catch (error) {
+        setError("Failed to load map data");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTrails();
+  }, []);
+
+  if (loading) {
+    return <div>Loading map...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="flex h-full w-full">
