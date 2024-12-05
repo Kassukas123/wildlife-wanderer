@@ -1,17 +1,23 @@
 import React from "react";
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import { Trail } from "@/types/trail";
 
-interface MarkerProps {
+type MarkerProps = Omit<Trail, "id" | "xCoordinate" | "yCoordinate"> & {
   position: [number, number];
-  title: string;
-  description: string;
-}
+};
 
 export default function MarkerComponent({
   position,
-  title,
-  description,
+  name,
+  type,
+  parking,
+  camping,
+  campfire,
+  accessibility,
+  berries_mushrooms,
+  sightseeing,
+  picture,
 }: MarkerProps) {
   const customIcon = L.divIcon({
     className: "custom-icon",
@@ -23,8 +29,20 @@ export default function MarkerComponent({
   return (
     <Marker position={position} icon={customIcon}>
       <Popup>
-        <h3>{title}</h3>
-        <p>{description}</p>
+        <p><strong>Nimi:</strong> {name}</p>
+        <p><strong>Tüüp:</strong> {type}</p>
+        <p><strong>Parkimine:</strong> {parking ? "Olemas" : "Puudub"}</p>
+        <p><strong>Telkimine:</strong> {camping ? "Olemas" : "Puudub"}</p>
+        <p><strong>Lõkkeplats:</strong> {campfire ? "Olemas" : "Puudub"}</p>
+        <p><strong>Juurdepääs:</strong> {accessibility}</p>
+        <p><strong>Marjad ja seened:</strong> {berries_mushrooms ? "Olemas" : "Puudub"}</p>
+        <p><strong>Vaatamisväärsused:</strong> {sightseeing ? "Olemas" : "Puudub"}</p>
+        {picture && (
+          <div>
+            <strong>Pilt:</strong>
+            <img src={picture} alt={`${name} pilt`} style={{ width: "100%", marginTop: "10px" }} />
+          </div>
+        )}
       </Popup>
     </Marker>
   );

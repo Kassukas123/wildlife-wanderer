@@ -4,6 +4,7 @@ export type Trail = {
     type: string;
     parking?: boolean;
     camping?: boolean;
+    campfire?: boolean;
     accessibility?: string;
     location: string;
     berries_mushrooms?: string;

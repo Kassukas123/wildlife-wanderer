@@ -8,47 +8,23 @@ import MarkerComponent from "./MarkerComponent";
 import { Trail } from "@/types/trail"; 
 
 export function MapComponent() {
+  const [trails, setTrails] = useState<Trail[]>([]);
   const [coord] = useState<[number, number]>([58.5857, 25.5577]);
-  const [markerData, setMarkerData] = useState<
-    { position: [number, number]; title: string; description: string }[]
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchTrails() {
       try {
         const response = await fetch("/api/trails");
-        if (!response.ok) {
-          throw new Error("Failed to fetch trail data");
-        }
-
-        const trails: Trail[] = await response.json();
-
-        const markers = trails.map((trail) => ({
-          position: [trail.xCoordinate, trail.yCoordinate] as [number, number],
-          title: trail.name,
-          description: trail.location, 
-        }));
-
-        setMarkerData(markers);
+        if (!response.ok) throw new Error("Failed to fetch trails");
+        const data: Trail[] = await response.json();
+        setTrails(data);
       } catch (error) {
-        setError("Failed to load map data");
-      } finally {
-        setLoading(false);
+        console.error(error);
       }
     }
 
     fetchTrails();
   }, []);
-
-  if (loading) {
-    return <div>Loading map...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
 
   return (
     <div className="flex h-full w-full">
@@ -69,12 +45,11 @@ export function MapComponent() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {markerData.map((data, index) => (
+          {trails.map((trail) => (
             <MarkerComponent
-              key={index}
-              position={data.position}
-              title={data.title}
-              description={data.description}
+              key={trail.id}
+              position={[trail.xCoordinate, trail.yCoordinate]}
+              {...trail}
             />
           ))}
         </MapContainer>
