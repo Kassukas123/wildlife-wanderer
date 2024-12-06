@@ -1,6 +1,7 @@
 export type Trail = {
     id: number;
     name: string;
+    length: number;
     type: string;
     parking?: boolean;
     camping?: boolean;
