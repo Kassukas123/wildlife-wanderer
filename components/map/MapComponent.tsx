@@ -15,6 +15,8 @@ export function MapComponent() {
     camping: null as boolean | null,
     campfire: null as boolean | null,
     length: null as string | null,
+    type: null as string | null,
+    accessibility: null as string | null,
   });
 
   const [tempFilters, setTempFilters] = useState(filters);
@@ -49,6 +51,8 @@ export function MapComponent() {
         (tempFilters.parking === null || trail.parking === tempFilters.parking) &&
         (tempFilters.camping === null || trail.camping === tempFilters.camping) &&
         (tempFilters.campfire === null || trail.campfire === tempFilters.campfire) &&
+        (tempFilters.type === null || trail.type === tempFilters.type) &&
+        (tempFilters.accessibility === null || trail.accessibility === tempFilters.accessibility) &&
         lengthCheck
       ); 
     });
