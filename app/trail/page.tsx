@@ -1,3 +1,5 @@
+'use client';
+
 import TrailComponent from "../../components/trail/TrailComponent"; 
 
 export default function Trail() {

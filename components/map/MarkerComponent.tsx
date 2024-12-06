@@ -1,3 +1,5 @@
+'use client';
+
 import React from "react";
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
@@ -10,6 +12,7 @@ type MarkerProps = Omit<Trail, "id" | "xCoordinate" | "yCoordinate"> & {
 export default function MarkerComponent({
   position,
   name,
+  length,
   type,
   parking,
   camping,
@@ -30,6 +33,7 @@ export default function MarkerComponent({
     <Marker position={position} icon={customIcon}>
       <Popup>
         <p><strong>Nimi:</strong> {name}</p>
+        <p><strong>Pikkus:</strong> {length} kilomeetrit</p>
         <p><strong>Tüüp:</strong> {type}</p>
         <p><strong>Parkimine:</strong> {parking ? "Olemas" : "Puudub"}</p>
         <p><strong>Telkimine:</strong> {camping ? "Olemas" : "Puudub"}</p>
