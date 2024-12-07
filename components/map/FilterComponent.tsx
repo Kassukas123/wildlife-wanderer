@@ -1,5 +1,7 @@
 "use client";
 
+import { SearchComponent } from "./SearchComponent";
+
 interface FilterProps {
   filters: {
     parking: boolean | null;
@@ -18,16 +20,18 @@ interface FilterProps {
     accessibility: string | null;
   }) => void;
   onApplyFilters: () => void;
+  onSearch: (query: string) => void;
 }
 
-export function FilterComponent({
+export default function FilterComponent({
   filters,
   onFilterChange,
   onApplyFilters,
+  onSearch,
 }: FilterProps) {
   return (
     <div className="w-1/5 bg-gray-100 p-4">
-      <h2 className="text-lg font-bold mb-4">Filtrid</h2>
+      <SearchComponent onSearch={onSearch} />
 
       <div className="mb-4">
         <label className="block mb-2">Raja pikkus:</label>
