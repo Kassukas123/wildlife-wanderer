@@ -1,10 +1,12 @@
 "use client"
 import React, { createContext, useContext, useState } from 'react';
+import bcrypt from 'bcryptjs';
+import { supabase } from '@/lib/supabaseClient';
 
 interface AuthContextType {
   user: string | null;
   register: (username: string, password: string) => boolean;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -15,7 +17,7 @@ const mockUsers: { [username: string]: string } = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   register: () => false,
-  login: () => false,
+  login: async () => false,
   logout: () => {},
 });
 
@@ -37,14 +39,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return true; 
   };
 
-  const login = (username: string, password: string) => {
-    if (mockUsers[username] && mockUsers[username] === password) {
+  const login = async (username: string, password: string) => {
+    const { data: user, error } = await supabase
+      .from("Users")
+      .select("*")
+      .eq("username", username)
+      .single();
+
+      if (error || !user) {
+        alert("Vale kasutajanimi või parool");
+        return false;
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        alert("Vale kasutajanimi või parool");
+        return false;
+      }
+
       setUser(username);
       return true;
-    } else {
-      alert('Vale kasutajanimi või parool!');
-      return false;
-    }
   };
 
   const logout = () => {
