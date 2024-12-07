@@ -71,7 +71,7 @@ export default function FilterComponent({
       </div>
 
       <div className="mb-4">
-        <label className="block mb-2">Maakonnad:</label>
+        <label className="block mb-2">Maakond:</label>
         <select
           className="border border-gray-300 rounded p-2 w-full"
           value={filters.county ?? ""}
