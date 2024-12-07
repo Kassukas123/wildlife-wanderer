@@ -11,17 +11,17 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (username.trim() === '' || password.trim() === '') {
       alert('Palun täida kõik väljad!');
       return;
     }
-
-    const success = login(username, password);
+  
+    const success = await login(username, password);
     if (success) {
       router.push('/account');
     } else {
-      alert("Vale kasutajanimi või parool");
+      alert('Vale kasutajanimi või parool');
     }
   };
 
