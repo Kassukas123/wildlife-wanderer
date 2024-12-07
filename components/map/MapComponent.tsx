@@ -17,6 +17,7 @@ export function MapComponent() {
     length: null as string | null,
     type: null as string | null,
     accessibility: null as string | null,
+    county: null as string | null,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [coord] = useState<[number, number]>([58.5857, 25.5577]);
@@ -50,12 +51,8 @@ export function MapComponent() {
       const lengthCheck =
         filters.length === null ||
         (filters.length === "0-2" && trail.length >= 0 && trail.length <= 2) ||
-        (filters.length === "2-5" &&
-          trail.length > 2 &&
-          trail.length <= 5) ||
-        (filters.length === "5-10" &&
-          trail.length > 5 &&
-          trail.length <= 10) ||
+        (filters.length === "2-5" && trail.length > 2 && trail.length <= 5) ||
+        (filters.length === "5-10" && trail.length > 5 && trail.length <= 10) ||
         (filters.length === "10+" && trail.length > 10);
 
       return (
@@ -65,6 +62,7 @@ export function MapComponent() {
         (filters.type === null || trail.type === filters.type) &&
         (filters.accessibility === null ||
           trail.accessibility === filters.accessibility) &&
+        (filters.county === null || trail.county === filters.county) &&
         lengthCheck
       );
     });
@@ -78,7 +76,7 @@ export function MapComponent() {
           filters={filters}
           onFilterChange={setFilters}
           onApplyFilters={handleApplyFilters}
-          onSearch={handleSearch} 
+          onSearch={handleSearch}
         />
 
         <div className="flex-1">

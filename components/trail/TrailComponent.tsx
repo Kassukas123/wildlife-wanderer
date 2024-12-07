@@ -41,7 +41,7 @@ export default function TrailComponent() {
           <li key={trail.id}>
             <h2>{trail.name}</h2>
             <p>Type: {trail.type}</p>
-            <p>Location: {trail.location}</p>
+            <p>County: {trail.county}</p>
             <p>Accessibility: {trail.accessibility}</p>
             <p>{trail.parking ? 'Has parking' : 'No parking'}</p>
             <p>{trail.camping ? 'Camping allowed' : 'No camping'}</p>
