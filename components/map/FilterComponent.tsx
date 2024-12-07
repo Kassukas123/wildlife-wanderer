@@ -1,5 +1,7 @@
 "use client";
 
+import { SearchComponent } from "./SearchComponent";
+
 interface FilterProps {
   filters: {
     parking: boolean | null;
@@ -8,6 +10,7 @@ interface FilterProps {
     length: string | null;
     type: string | null;
     accessibility: string | null;
+    county: string | null;
   };
   onFilterChange: (newFilters: {
     parking: boolean | null;
@@ -16,18 +19,21 @@ interface FilterProps {
     length: string | null;
     type: string | null;
     accessibility: string | null;
+    county: string | null;
   }) => void;
   onApplyFilters: () => void;
+  onSearch: (query: string) => void;
 }
 
-export function FilterComponent({
+export default function FilterComponent({
   filters,
   onFilterChange,
   onApplyFilters,
+  onSearch,
 }: FilterProps) {
   return (
     <div className="w-1/5 bg-gray-100 p-4">
-      <h2 className="text-lg font-bold mb-4">Filtrid</h2>
+      <SearchComponent onSearch={onSearch} />
 
       <div className="mb-4">
         <label className="block mb-2">Raja pikkus:</label>
@@ -61,6 +67,37 @@ export function FilterComponent({
           <option value="">Kõik</option>
           <option value="Õpperada">Õpperada</option>
           <option value="Matkarada">Matkarada</option>
+        </select>
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-2">Maakonnad:</label>
+        <select
+          className="border border-gray-300 rounded p-2 w-full"
+          value={filters.county ?? ""}
+          onChange={(e) =>
+            onFilterChange({
+              ...filters,
+              county: e.target.value === "" ? null : e.target.value,
+            })
+          }
+        >
+          <option value="">Kõik</option>
+          <option value="Hiiu maakond">Hiiu maakond</option>
+          <option value="Saare maakond">Saare maakond</option>
+          <option value="Lääne maakond">Lääne maakond</option>
+          <option value="Pärnu maakond">Pärnu maakond</option>
+          <option value="Harju maakond">Harju maakond</option>
+          <option value="Rapla maakond">Rapla maakond</option>
+          <option value="Järva maakond">Järva maakond</option>
+          <option value="Viljandi maakond">Viljandi maakond</option>
+          <option value="Jõgeva maakond">Jõgeva maakond</option>
+          <option value="Lääne-Viru maakond">Lääne-Viru maakond</option>
+          <option value="Ida-Viru maakond">Ida-Viru maakond</option>
+          <option value="Tartu maakond">Tartu maakond</option>
+          <option value="Valga maakond">Valga maakond</option>
+          <option value="Põlva maakond">Põlva maakond</option>
+          <option value="Võru maakond">Võru maakond</option>
         </select>
       </div>
 
@@ -154,6 +191,7 @@ export function FilterComponent({
               length: null,
               type: null,
               accessibility: null,
+              county: null,
             })
           }
           className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
