@@ -12,7 +12,24 @@ export default function TrailPage({ params }: { params: Promise<{ trailId: strin
   const { user } = useAuth(); 
   const [trail, setTrail] = useState<any>(null);
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const fetchComments = async () => {
+    if (!trailId) return;
+
+    const { data: comments, error } = await supabase
+      .from("Comments")
+      .select("id, comment, created_at, Users(username)")
+      .eq("trail_id", trailId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Kommentaare ei õnnestunud laadida:", error.message);
+    } else {
+      setComments(comments || []);
+    }
+  };
 
   useEffect(() => {
     const fetchTrail = async () => {
@@ -34,6 +51,7 @@ export default function TrailPage({ params }: { params: Promise<{ trailId: strin
     };
 
     fetchTrail();
+    fetchComments();
   }, [trailId]);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
@@ -65,6 +83,7 @@ export default function TrailPage({ params }: { params: Promise<{ trailId: strin
       } else {
         alert("Kommentaar lisatud!");
         setComment(""); 
+        await fetchComments();
       }
     } catch (err) {
       console.error("Tekkis viga:", err);
@@ -102,6 +121,26 @@ export default function TrailPage({ params }: { params: Promise<{ trailId: strin
           />
         )}
       </p>
+
+      <div className="mt-6">
+        <h2 className="text-xl font-medium mb-4">Kommentaarid</h2>
+        {comments.length > 0 ? (
+          <ul>
+            {comments.map((comment) => (
+              <li key={comment.id} className="mb-4 border-b pb-2">
+                <small>
+                  {new Date(comment.created_at).toLocaleString("et-EE")}
+                </small>
+                <p>
+                  <strong>{comment.Users.username}</strong>: {comment.comment}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Ühtegi kommentaari pole lisatud.</p>
+        )}
+      </div>
 
       <div className="mt-6">
         <h2 className="text-xl font-medium mb-4">Lisa kommentaar</h2>
