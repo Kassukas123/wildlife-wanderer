@@ -1,33 +1,88 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Account() {
+  const supabase = createClient();
   const { user, logout } = useAuth();
   const router = useRouter();
   const [commentedTrails, setCommentedTrails] = useState<any[] | null>(null);
   const [savedTrails, setSavedTrails] = useState<any[] | null>(null);
-  const [bio, setBio] = useState<string>('');
+  const [bio, setBio] = useState<string>("");
   const [isEditingBio, setIsEditingBio] = useState(false);
-
-  if (!user) {
-    router.push('/sign-in');
-    return null;
-  }
-
-  const handleSaveBio = () => {
-    alert('Bio salvestatud');
-    setIsEditingBio(false);
-  };
+  const [userId, setUserId] = useState<string | null>(null); 
 
   useEffect(() => {
-    setTimeout(() => {
-      setCommentedTrails([]);
-      setSavedTrails([]);
-    }, 1000);
-  }, []);
+    if (!user) {
+      router.push("/sign-in");
+      return;
+    }
+
+    const fetchUserId = async () => {
+      try {
+        const { data: userProfile, error: profileError } = await supabase
+          .from("Users")
+          .select("id, bio")
+          .eq("username", user)
+          .single();
+
+        if (profileError) {
+          console.error(
+            "Profiili laadimine ebaõnnestus:",
+            profileError.message
+          );
+        } else {
+          console.log("Kasutaja andmed:", userProfile); 
+          setBio(userProfile?.bio || "");
+          setUserId(userProfile?.id || null);
+        }
+
+        setCommentedTrails([]);
+        setSavedTrails([]);
+      } catch (err) {
+        console.error("Tekkis viga andmete laadimisel:", err);
+      }
+    };
+
+    fetchUserId();
+  }, [user, router]);
+
+  const handleSaveBio = async () => {
+    if (!bio.trim()) {
+      alert("Bio ei saa olla tühi!");
+      return;
+    }
+
+    if (!userId) {
+      alert("Kasutaja ID puudub!");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("Users")
+        .update({ bio })
+        .eq("id", userId);
+
+      if (error) {
+        console.error("Bio salvestamine ebaõnnestus:", error.message);
+        alert("Bio salvestamine ebaõnnestus: " + error.message);
+      } else {
+        alert("Bio salvestatud!");
+        setIsEditingBio(false);
+      }
+    } catch (err) {
+      console.error("Tekkis viga:", err);
+      alert("Tekkis ootamatu viga.");
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col items-center bg-gray-100 min-h-screen py-10">
@@ -35,13 +90,13 @@ export default function Account() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg text-gray-700">Tere, {user}!</h2>
           <button
-          onClick={() => {
-            logout();
-            router.push('/');
-          }}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Logi välja
+            onClick={() => {
+              logout();
+              router.push("/");
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Logi välja
           </button>
         </div>
       </div>
@@ -85,8 +140,9 @@ export default function Account() {
           ) : (
             <>
               <p className="text-sm text-gray-700 mb-4">
-                {bio.trim() ? bio : 'Pole veel lisatud bio.'}
-              </p>              <button
+                {bio.trim() ? bio : "Pole veel lisatud bio."}
+              </p>
+              <button
                 onClick={() => setIsEditingBio(true)}
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
@@ -100,9 +156,10 @@ export default function Account() {
         </div>
 
         <div className="col-span-2 space-y-6">
-        {/*kommenteeritud rajad*/}
-        <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-medium mb-4">Minu kommenteeritud rajad</h2>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-lg font-medium mb-4">
+              Minu kommenteeritud rajad
+            </h2>
             {commentedTrails === null ? (
               <p className="text-sm text-gray-500">Laadimine...</p>
             ) : commentedTrails.length > 0 ? (
@@ -115,11 +172,12 @@ export default function Account() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Pole veel lisatud kommenteeritud radu.</p>
+              <p className="text-sm text-gray-500">
+                Pole veel lisatud kommenteeritud radu.
+              </p>
             )}
           </div>
 
-          {/*salvestatud rajad*/}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-lg font-medium mb-4">Salvestatud rajad</h2>
             {savedTrails === null ? (
@@ -129,7 +187,7 @@ export default function Account() {
                 {savedTrails.map((trail, i) => (
                   <div key={i} className="border rounded p-4 shadow-sm">
                     <img
-                      src={trail.image || '/path/to/default-image.jpg'}
+                      src={trail.image || "/path/to/default-image.jpg"}
                       alt="Raja pilt"
                       className="w-full h-32 object-cover rounded mb-2"
                     />
@@ -138,7 +196,9 @@ export default function Account() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Pole veel salvestatud radu.</p>
+              <p className="text-sm text-gray-500">
+                Pole veel salvestatud radu.
+              </p>
             )}
           </div>
         </div>
