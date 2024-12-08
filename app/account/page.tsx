@@ -10,10 +10,8 @@ export default function Account() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [commentedTrails, setCommentedTrails] = useState<any[] | null>(null);
-  const [savedTrails, setSavedTrails] = useState<any[] | null>(null);
   const [bio, setBio] = useState<string>("");
   const [isEditingBio, setIsEditingBio] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null); 
 
   useEffect(() => {
     if (!user) {
@@ -21,33 +19,46 @@ export default function Account() {
       return;
     }
 
-    const fetchUserId = async () => {
+    const fetchUserProfile = async () => {
       try {
-        const { data: userProfile, error: profileError } = await supabase
+        const { data: userProfile, error } = await supabase
           .from("Users")
           .select("id, bio")
-          .eq("username", user)
+          .eq("username", user.username)
           .single();
 
-        if (profileError) {
-          console.error(
-            "Profiili laadimine ebaõnnestus:",
-            profileError.message
-          );
+        if (error) {
+          console.error("Profiili laadimine ebaõnnestus:", error.message);
         } else {
-          console.log("Kasutaja andmed:", userProfile); 
           setBio(userProfile?.bio || "");
-          setUserId(userProfile?.id || null);
         }
-
-        setCommentedTrails([]);
-        setSavedTrails([]);
       } catch (err) {
         console.error("Tekkis viga andmete laadimisel:", err);
       }
     };
 
-    fetchUserId();
+    const fetchUserComments = async () => {
+      if (!user) return;
+
+      try {
+        const { data: userComments, error } = await supabase
+          .from("Comments")
+          .select("id, comment, created_at, Trails(name)")
+          .eq("user_id", user.userId)
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Kommentaaride laadimine ebaõnnestus:", error.message);
+        } else {
+          console.log("Kommentaarid:", userComments);
+          setCommentedTrails(userComments || []);
+        }
+      } catch (err) {
+        console.error("Tekkis viga andmete laadimisel:", err);
+      }
+    };
+    fetchUserProfile();
+    fetchUserComments();
   }, [user, router]);
 
   const handleSaveBio = async () => {
@@ -56,16 +67,11 @@ export default function Account() {
       return;
     }
 
-    if (!userId) {
-      alert("Kasutaja ID puudub!");
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from("Users")
         .update({ bio })
-        .eq("id", userId);
+        .eq("username", user?.username);
 
       if (error) {
         console.error("Bio salvestamine ebaõnnestus:", error.message);
@@ -88,7 +94,7 @@ export default function Account() {
     <div className="flex flex-col items-center bg-gray-100 min-h-screen py-10">
       <div className="w-full max-w-7xl px-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg text-gray-700">Tere, {user}!</h2>
+          <h2 className="text-lg text-gray-700">Tere, {user.username}!</h2>
           <button
             onClick={() => {
               logout();
@@ -110,7 +116,7 @@ export default function Account() {
             placeholder="Kasutajanimi"
             className="w-full border rounded p-2 mb-4"
             readOnly
-            value={user}
+            value={user.username}
           />
           <label className="block mb-2 text-sm">Bio:</label>
           {isEditingBio ? (
@@ -150,9 +156,6 @@ export default function Account() {
               </button>
             </>
           )}
-          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Muuda parooli
-          </button>
         </div>
 
         <div className="col-span-2 space-y-6">
@@ -160,44 +163,29 @@ export default function Account() {
             <h2 className="text-lg font-medium mb-4">
               Minu kommenteeritud rajad
             </h2>
-            {commentedTrails === null ? (
-              <p className="text-sm text-gray-500">Laadimine...</p>
-            ) : commentedTrails.length > 0 ? (
+            {commentedTrails && commentedTrails.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {commentedTrails.map((trail, i) => (
                   <div key={i} className="border rounded p-4 shadow-sm">
-                    <h3 className="font-medium mb-2">{trail.name}</h3>
-                    <p className="text-sm text-gray-600">{trail.comment}</p>
+                    <h3 className="font-medium mb-2">
+                      {trail.Trails?.name || "Nimi puudub"}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {trail.comment}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {trail.created_at
+                        ? new Date(trail.created_at).toLocaleDateString("et-EE")
+                        : "Kuupäev puudub"}
+                    </p>
                   </div>
                 ))}
               </div>
+            ) : commentedTrails === null ? (
+              <p className="text-sm text-gray-500">Laadimine...</p>
             ) : (
               <p className="text-sm text-gray-500">
                 Pole veel lisatud kommenteeritud radu.
-              </p>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-medium mb-4">Salvestatud rajad</h2>
-            {savedTrails === null ? (
-              <p className="text-sm text-gray-500">Laadimine...</p>
-            ) : savedTrails.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {savedTrails.map((trail, i) => (
-                  <div key={i} className="border rounded p-4 shadow-sm">
-                    <img
-                      src={trail.image || "/path/to/default-image.jpg"}
-                      alt="Raja pilt"
-                      className="w-full h-32 object-cover rounded mb-2"
-                    />
-                    <h3 className="font-medium">{trail.name}</h3>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">
-                Pole veel salvestatud radu.
               </p>
             )}
           </div>

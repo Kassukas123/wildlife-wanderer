@@ -1,69 +1,92 @@
-"use client"
-import React, { createContext, useContext, useState } from 'react';
-import bcrypt from 'bcryptjs';
-import { supabase } from '@/lib/supabaseClient';
+"use client";
+import React, { createContext, useContext, useState } from "react";
+import bcrypt from "bcryptjs";
+import { supabase } from "@/lib/supabaseClient";
 
 interface AuthContextType {
-  user: string | null;
-  register: (username: string, password: string) => boolean;
+  user: { username: string; userId: string } | null;
+  register: (username: string, password: string) => Promise<boolean>;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
-const mockUsers: { [username: string]: string } = {
-    testuser: "password",
-};
-
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  register: () => false,
+  register: async () => false,
   login: async () => false,
   logout: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<{ username: string; userId: string } | null>(
+    null
+  );
 
-  const register = (username: string, password: string): boolean => {
-    if (mockUsers[username]) {
-      alert('Kasutaja juba olemas!');
+  const register = async (username: string, password: string): Promise<boolean> => {
+    if (username.trim() === "" || password.trim() === "") {
+      alert("Palun täida kõik väljad!");
       return false;
     }
-    if (username.trim() === '' || password.trim() === '') {
-      alert('Palun täida kõik väljad!');
+
+    try {
+      const { data, error } = await supabase
+        .from("Users")
+        .select("*")
+        .eq("username", username)
+        .single();
+
+      if (error || !data) {
+        const { error: insertError } = await supabase.from("Users").insert([
+          {
+            username,
+            password: await bcrypt.hash(password, 10),
+          },
+        ]);
+
+        if (insertError) {
+          alert("Kasutaja loomine ebaõnnestus");
+          return false;
+        }
+
+        alert("Kasutaja registreeritud!");
+        return true;
+      }
+
+      alert("Kasutaja on juba olemas.");
+      return false;
+    } catch (err) {
+      console.error("Registreerimise viga:", err);
       return false;
     }
-    mockUsers[username] = password;
-    console.log('Registreeritud kasutajad:', mockUsers);
-    alert('Kasutaja registreeritud!');
-    return true; 
   };
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     const { data: user, error } = await supabase
       .from("Users")
       .select("*")
       .eq("username", username)
       .single();
 
-      if (error || !user) {
-        alert("Vale kasutajanimi või parool");
-        return false;
-      }
+    if (error || !user) {
+      alert("Vale kasutajanimi või parool");
+      return false;
+    }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        alert("Vale kasutajanimi või parool");
-        return false;
-      }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      alert("Vale kasutajanimi või parool");
+      return false;
+    }
 
-      setUser(username);
-      return true;
+    setUser({ username, userId: user.id });
+
+    return true;
   };
+
 
   const logout = () => {
     setUser(null);
-    alert('Oled välja logitud.');
+    alert("Oled välja logitud.");
   };
 
   return (
