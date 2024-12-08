@@ -1,10 +1,14 @@
-import { MapComponent } from "@/components/map/MapComponent";
+import Image from "next/image";
 
-export default async function Index() {
+export default function Index() {
   return (
-    <div style={{ width: '100%', height: '100vh', margin: 0, padding: 0 }}>
-      <h1>Siia tuleb kunagi hoopis niisama kaart</h1>
-      {/* <MapComponent /> */}
+    <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
+      <Image
+        src="/hiking-trail.jpg"
+        layout="fill"
+        objectFit="cover"
+        alt="Hiking trail"
+      />
     </div>
   );
 }
