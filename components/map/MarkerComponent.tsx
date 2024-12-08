@@ -46,7 +46,7 @@ export default function MarkerComponent({
             onClick={handleNameClick}
             style={{
               color: "black",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             {name}
@@ -71,8 +71,7 @@ export default function MarkerComponent({
           <strong>Juurdepääs:</strong> {accessibility}
         </p>
         <p>
-          <strong>Marjad ja seened:</strong>{" "}
-          {berries_mushrooms ? "Olemas" : "Puudub"}
+        <strong>Korilus:</strong> {berries_mushrooms === "puudub" || !berries_mushrooms ? "info puudub" : "Olemas"}
         </p>
         <p>
           <strong>Vaatamisväärsused:</strong>{" "}
