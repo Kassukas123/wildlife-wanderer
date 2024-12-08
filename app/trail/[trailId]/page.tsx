@@ -118,7 +118,7 @@ export default function TrailPage({ params }: { params: Promise<{ trailId: strin
           <li><strong>Lõkke tegemine:</strong> {trail.campfire ? "olemas" : "puudub"}</li>
           <li><strong>Ligipääsetavus:</strong> {trail.accessibility}</li>
           <li><strong>Maakond:</strong> {trail.county}</li>
-          <li><strong>Korilus:</strong> {trail.berries_mushrooms}</li>
+          <li><strong>Korilus:</strong> {trail.berries_mushrooms === "puudub" || !trail.berries_mushrooms ? "info puudub" : trail.berries_mushrooms}</li>
           <li><strong>Vaatamisväärsused:</strong> {trail.sightseeing}</li>
         </ul>
       </div>
