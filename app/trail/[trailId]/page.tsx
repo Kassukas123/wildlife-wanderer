@@ -1,7 +1,4 @@
-"use client";
-
 import { createClient } from "@/utils/supabase/client";
-import { useState } from "react";
 
 export default async function TrailPage({
   params,
@@ -26,36 +23,6 @@ export default async function TrailPage({
     return <div>Rada ei leitud.</div>;
   }
 
-  return <TrailContent trail={trail} />;
-}
-
-function TrailContent({ trail }: { trail: any }) {
-  const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleCommentSubmit = async () => {
-    if (!comment.trim()) return;
-
-    setIsSubmitting(true);
-
-    const supabase = createClient();
-    const { error } = await supabase.from("Comments").insert({
-      trail_id: trail.id,
-      user_id: "current-user-id",
-      comment,
-    });
-
-    if (error) {
-      console.error("Failed to submit comment:", error);
-      alert("Kommentaari salvestamine ebaõnnestus.");
-    } else {
-      alert("Kommentaar salvestatud!");
-      setComment("");
-    }
-
-    setIsSubmitting(false);
-  };
-
   return (
     <div>
       <h1>{trail.name}</h1>
@@ -78,22 +45,6 @@ function TrailContent({ trail }: { trail: any }) {
           />
         )}
       </p>
-      <div>
-        <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Lisa kommentaar"
-          rows={4}
-          className="w-full border rounded p-2"
-        />
-        <button
-          onClick={handleCommentSubmit}
-          disabled={isSubmitting}
-          className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
-        >
-          {isSubmitting ? "Salvestan..." : "Lisa kommentaar"}
-        </button>
-      </div>
     </div>
   );
 }
