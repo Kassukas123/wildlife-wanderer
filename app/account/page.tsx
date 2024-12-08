@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 export default function Account() {
   const supabase = createClient();
@@ -43,7 +44,7 @@ export default function Account() {
       try {
         const { data: userComments, error } = await supabase
           .from("Comments")
-          .select("id, comment, created_at, Trails(name)")
+          .select("id, comment, created_at, Trails(id, name)")
           .eq("user_id", user.userId)
           .order("created_at", { ascending: false });
 
@@ -170,9 +171,17 @@ export default function Account() {
                   key={i}
                   className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200"
                 >
-                  <h3 className="font-semibold text-lg text-blue-600 mb-2">
-                    {trail.Trails?.name || "Nimi puudub"}
-                  </h3>
+                  {trail.Trails?.name ? (
+                    <h3 className="font-semibold text-lg text-blue-600 mb-2">
+                      <Link href={`/trail/${trail.Trails?.id}`} className="hover:underline">
+                        {trail.Trails.name}
+                      </Link>
+                    </h3>
+                  ) : (
+                    <h3 className="font-semibold text-lg text-gray-600 mb-2">
+                      Nimi puudub
+                    </h3>
+                  )}
                   <p className="text-sm text-gray-700 mb-2">{trail.comment}</p>
                   <p className="text-xs text-gray-500 italic">
                     {trail.created_at
