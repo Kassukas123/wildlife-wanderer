@@ -1,22 +1,79 @@
+"use client";
+
 import { createClient } from "@/utils/supabase/client";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { use } from "react";
 
-export default async function TrailPage({
-  params,
-}: {
-  params: { trailId: string };
-}) {
+export default function TrailPage({ params }: { params: Promise<{ trailId: string }> }) {
+  const { trailId } = use(params); 
+
   const supabase = createClient();
-  const { data: trail, error } = await supabase
-    .from("Trails")
-    .select(
-      "id, name, length, type, parking, camping, campfire, accessibility, county, berries_mushrooms, sightseeing, picture"
-    )
-    .eq("id", params.trailId)
-    .single();
+  const { user } = useAuth(); 
+  const [trail, setTrail] = useState<any>(null);
+  const [comment, setComment] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  if (error) {
-    console.error("Failed to fetch trail:", error);
-    return <div>Rada ei õnnestunud laadida.</div>;
+  useEffect(() => {
+    const fetchTrail = async () => {
+      if (!trailId) return;
+
+      const { data: trail, error } = await supabase
+        .from("Trails")
+        .select(
+          "id, name, length, type, parking, camping, campfire, accessibility, county, berries_mushrooms, sightseeing, picture"
+        )
+        .eq("id", trailId)
+        .single();
+
+      if (error) {
+        setErrorMessage("Rada ei õnnestunud laadida.");
+      } else {
+        setTrail(trail);
+      }
+    };
+
+    fetchTrail();
+  }, [trailId]);
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!comment.trim()) {
+      alert("Kommentaar ei saa olla tühi!");
+      return;
+    }
+
+    if (!user) {
+      alert("Palun logige sisse enne kommentaaride lisamist.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("Comments").insert([
+        {
+          trail_id: trailId,
+          user_id: user.userId, 
+          comment,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (error) {
+        console.error("Kommentaari lisamine ebaõnnestus:", error.message);
+        alert("Kommentaari salvestamine ebaõnnestus.");
+      } else {
+        alert("Kommentaar lisatud!");
+        setComment(""); 
+      }
+    } catch (err) {
+      console.error("Tekkis viga:", err);
+      alert("Tekkis ootamatu viga.");
+    }
+  };
+
+  if (errorMessage) {
+    return <div>{errorMessage}</div>;
   }
 
   if (!trail) {
@@ -45,6 +102,25 @@ export default async function TrailPage({
           />
         )}
       </p>
+
+      <div className="mt-6">
+        <h2 className="text-xl font-medium mb-4">Lisa kommentaar</h2>
+        <form onSubmit={handleCommentSubmit}>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Sisesta oma kommentaar"
+            className="w-full border rounded p-2 mb-4"
+            rows={4}
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Saada kommentaar
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

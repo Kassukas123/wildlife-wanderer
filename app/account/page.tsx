@@ -13,7 +13,6 @@ export default function Account() {
   const [savedTrails, setSavedTrails] = useState<any[] | null>(null);
   const [bio, setBio] = useState<string>("");
   const [isEditingBio, setIsEditingBio] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null); 
 
   useEffect(() => {
     if (!user) {
@@ -21,23 +20,18 @@ export default function Account() {
       return;
     }
 
-    const fetchUserId = async () => {
+    const fetchUserProfile = async () => {
       try {
-        const { data: userProfile, error: profileError } = await supabase
+        const { data: userProfile, error } = await supabase
           .from("Users")
           .select("id, bio")
-          .eq("username", user)
+          .eq("username", user.username)
           .single();
 
-        if (profileError) {
-          console.error(
-            "Profiili laadimine ebaõnnestus:",
-            profileError.message
-          );
+        if (error) {
+          console.error("Profiili laadimine ebaõnnestus:", error.message);
         } else {
-          console.log("Kasutaja andmed:", userProfile); 
           setBio(userProfile?.bio || "");
-          setUserId(userProfile?.id || null);
         }
 
         setCommentedTrails([]);
@@ -47,7 +41,7 @@ export default function Account() {
       }
     };
 
-    fetchUserId();
+    fetchUserProfile();
   }, [user, router]);
 
   const handleSaveBio = async () => {
@@ -56,16 +50,11 @@ export default function Account() {
       return;
     }
 
-    if (!userId) {
-      alert("Kasutaja ID puudub!");
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from("Users")
         .update({ bio })
-        .eq("id", userId);
+        .eq("username", user?.username);
 
       if (error) {
         console.error("Bio salvestamine ebaõnnestus:", error.message);
@@ -88,7 +77,7 @@ export default function Account() {
     <div className="flex flex-col items-center bg-gray-100 min-h-screen py-10">
       <div className="w-full max-w-7xl px-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg text-gray-700">Tere, {user}!</h2>
+          <h2 className="text-lg text-gray-700">Tere, {user.username}!</h2>
           <button
             onClick={() => {
               logout();
@@ -110,7 +99,7 @@ export default function Account() {
             placeholder="Kasutajanimi"
             className="w-full border rounded p-2 mb-4"
             readOnly
-            value={user}
+            value={user.username}
           />
           <label className="block mb-2 text-sm">Bio:</label>
           {isEditingBio ? (
