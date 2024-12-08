@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 export default function Account() {
   const supabase = createClient();
@@ -43,7 +44,7 @@ export default function Account() {
       try {
         const { data: userComments, error } = await supabase
           .from("Comments")
-          .select("id, comment, created_at, Trails(name)")
+          .select("id, comment, created_at, Trails(id, name)")
           .eq("user_id", user.userId)
           .order("created_at", { ascending: false });
 
@@ -160,36 +161,49 @@ export default function Account() {
 
         <div className="col-span-2 space-y-6">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-medium mb-4">
+            <h2 className="text-2xl font-semibold mb-6 text-blue-800">
               Minu kommenteeritud rajad
             </h2>
             {commentedTrails && commentedTrails.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ul className="space-y-4">
                 {commentedTrails.map((trail, i) => (
-                  <div key={i} className="border rounded p-4 shadow-sm">
-                    <h3 className="font-medium mb-2">
-                      {trail.Trails?.name || "Nimi puudub"}
+                <li
+                  key={i}
+                  className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200"
+                >
+                  {trail.Trails?.name ? (
+                    <h3 className="font-semibold text-lg text-blue-600 mb-2">
+                      <Link href={`/trail/${trail.Trails?.id}`} className="hover:underline">
+                        {trail.Trails.name}
+                      </Link>
                     </h3>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {trail.comment}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {trail.created_at
-                        ? new Date(trail.created_at).toLocaleDateString("et-EE")
-                        : "Kuupäev puudub"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : commentedTrails === null ? (
-              <p className="text-sm text-gray-500">Laadimine...</p>
-            ) : (
-              <p className="text-sm text-gray-500">
-                Pole veel lisatud kommenteeritud radu.
-              </p>
-            )}
-          </div>
+                  ) : (
+                    <h3 className="font-semibold text-lg text-gray-600 mb-2">
+                      Nimi puudub
+                    </h3>
+                  )}
+                  <p className="text-sm text-gray-700 mb-2">{trail.comment}</p>
+                  <p className="text-xs text-gray-500 italic">
+                    {trail.created_at
+                      ? new Date(trail.created_at).toLocaleDateString("et-EE", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "Kuupäev puudub"}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : commentedTrails === null ? (
+            <p className="text-sm text-gray-500">Laadimine...</p>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Pole veel lisatud kommenteeritud radu.
+            </p>
+          )}
         </div>
+      </div>
       </div>
     </div>
   );
