@@ -100,40 +100,37 @@ export default function TrailPage({ params }: { params: Promise<{ trailId: strin
   }
 
   return (
-    <div>
-      <h1>{trail.name}</h1>
-      <p>Pikkus: {trail.length} km</p>
-      <p>Tüüp: {trail.type}</p>
-      <p>Parkimine: {trail.parking ? "olemas" : "puudub"}</p>
-      <p>Telkimine: {trail.camping ? "olemas" : "puudub"}</p>
-      <p>Lõkke tegemine: {trail.campfire ? "olemas" : "puudub"}</p>
-      <p>Ligipääsetavus: {trail.accessibility}</p>
-      <p>Maakond: {trail.county}</p>
-      <p>Korilus: {trail.berries_mushrooms}</p>
-      <p>Vaatamisväärsused: {trail.sightseeing}</p>
-      <p>
-        Pilt:{" "}
+    <div className="min-h-screen overflow-y-auto bg-gray-100">
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg mt-6">
+        <h1 className="text-3xl font-bold mb-4 text-center text-blue-800">{trail.name}</h1>
         {trail.picture && (
           <img
             src={trail.picture}
             alt={trail.name}
-            style={{ width: "100%", maxWidth: "600px" }}
+            className="w-full max-w-lg mx-auto my-4 rounded-lg shadow-md"
           />
         )}
-      </p>
+        <ul className="space-y-2 text-gray-700">
+          <li><strong>Pikkus:</strong> {trail.length} km</li>
+          <li><strong>Tüüp:</strong> {trail.type}</li>
+          <li><strong>Parkimine:</strong> {trail.parking ? "olemas" : "puudub"}</li>
+          <li><strong>Telkimine:</strong> {trail.camping ? "olemas" : "puudub"}</li>
+          <li><strong>Lõkke tegemine:</strong> {trail.campfire ? "olemas" : "puudub"}</li>
+          <li><strong>Ligipääsetavus:</strong> {trail.accessibility}</li>
+          <li><strong>Maakond:</strong> {trail.county}</li>
+          <li><strong>Korilus:</strong> {trail.berries_mushrooms}</li>
+          <li><strong>Vaatamisväärsused:</strong> {trail.sightseeing}</li>
+        </ul>
+      </div>
 
-      <div className="mt-6">
-        <h2 className="text-xl font-medium mb-4">Kommentaarid</h2>
+      <div className="max-w-3xl mx-auto mt-6 bg-gray-50 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-medium mb-4 text-blue-600">Kommentaarid</h2>
         {comments.length > 0 ? (
-          <ul>
+          <ul className="space-y-4">
             {comments.map((comment) => (
-              <li key={comment.id} className="mb-4 border-b pb-2">
-                <small>
-                  {new Date(comment.created_at).toLocaleString("et-EE")}
-                </small>
-                <p>
-                  <strong>{comment.Users.username}</strong>: {comment.comment}
-                </p>
+              <li key={comment.id} className="p-4 bg-white rounded-lg shadow">
+                <p className="text-sm text-gray-600">{new Date(comment.created_at).toLocaleString("et-EE")}</p>
+                <p className="mt-2 text-gray-800"><strong>{comment.Users.username}</strong>: {comment.comment}</p>
               </li>
             ))}
           </ul>
@@ -142,19 +139,19 @@ export default function TrailPage({ params }: { params: Promise<{ trailId: strin
         )}
       </div>
 
-      <div className="mt-6">
-        <h2 className="text-xl font-medium mb-4">Lisa kommentaar</h2>
-        <form onSubmit={handleCommentSubmit}>
+      <div className="max-w-3xl mx-auto mt-6 bg-white p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-medium mb-4 text-blue-600">Lisa kommentaar</h2>
+        <form onSubmit={handleCommentSubmit} className="space-y-4">
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Sisesta oma kommentaar"
-            className="w-full border rounded p-2 mb-4"
+            className="w-full border rounded p-2 shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows={4}
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 shadow"
           >
             Saada kommentaar
           </button>
