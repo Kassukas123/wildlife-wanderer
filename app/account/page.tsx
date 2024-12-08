@@ -10,7 +10,6 @@ export default function Account() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [commentedTrails, setCommentedTrails] = useState<any[] | null>(null);
-  const [savedTrails, setSavedTrails] = useState<any[] | null>(null);
   const [bio, setBio] = useState<string>("");
   const [isEditingBio, setIsEditingBio] = useState(false);
 
@@ -33,15 +32,33 @@ export default function Account() {
         } else {
           setBio(userProfile?.bio || "");
         }
-
-        setCommentedTrails([]);
-        setSavedTrails([]);
       } catch (err) {
         console.error("Tekkis viga andmete laadimisel:", err);
       }
     };
 
+    const fetchUserComments = async () => {
+      if (!user) return;
+
+      try {
+        const { data: userComments, error } = await supabase
+          .from("Comments")
+          .select("id, comment, created_at, Trails(name)")
+          .eq("user_id", user.userId)
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Kommentaaride laadimine ebaõnnestus:", error.message);
+        } else {
+          console.log("Kommentaarid:", userComments);
+          setCommentedTrails(userComments || []);
+        }
+      } catch (err) {
+        console.error("Tekkis viga andmete laadimisel:", err);
+      }
+    };
     fetchUserProfile();
+    fetchUserComments();
   }, [user, router]);
 
   const handleSaveBio = async () => {
@@ -139,9 +156,6 @@ export default function Account() {
               </button>
             </>
           )}
-          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Muuda parooli
-          </button>
         </div>
 
         <div className="col-span-2 space-y-6">
@@ -149,44 +163,29 @@ export default function Account() {
             <h2 className="text-lg font-medium mb-4">
               Minu kommenteeritud rajad
             </h2>
-            {commentedTrails === null ? (
-              <p className="text-sm text-gray-500">Laadimine...</p>
-            ) : commentedTrails.length > 0 ? (
+            {commentedTrails && commentedTrails.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {commentedTrails.map((trail, i) => (
                   <div key={i} className="border rounded p-4 shadow-sm">
-                    <h3 className="font-medium mb-2">{trail.name}</h3>
-                    <p className="text-sm text-gray-600">{trail.comment}</p>
+                    <h3 className="font-medium mb-2">
+                      {trail.Trails?.name || "Nimi puudub"}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {trail.comment}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {trail.created_at
+                        ? new Date(trail.created_at).toLocaleDateString("et-EE")
+                        : "Kuupäev puudub"}
+                    </p>
                   </div>
                 ))}
               </div>
+            ) : commentedTrails === null ? (
+              <p className="text-sm text-gray-500">Laadimine...</p>
             ) : (
               <p className="text-sm text-gray-500">
                 Pole veel lisatud kommenteeritud radu.
-              </p>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-medium mb-4">Salvestatud rajad</h2>
-            {savedTrails === null ? (
-              <p className="text-sm text-gray-500">Laadimine...</p>
-            ) : savedTrails.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {savedTrails.map((trail, i) => (
-                  <div key={i} className="border rounded p-4 shadow-sm">
-                    <img
-                      src={trail.image || "/path/to/default-image.jpg"}
-                      alt="Raja pilt"
-                      className="w-full h-32 object-cover rounded mb-2"
-                    />
-                    <h3 className="font-medium">{trail.name}</h3>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">
-                Pole veel salvestatud radu.
               </p>
             )}
           </div>
